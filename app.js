@@ -14,15 +14,50 @@ app.use((req, res, next) => {
     next();
 });
 
-const readFile = () => {
+const readFile = (getImages) => {
+  if(getImages) {
+    const content = fs.readFileSync('./public/upload/users', 'utf-8')
+    return JSON.parse(content)
+  } else {
     const content = fs.readFileSync('./users.json', 'utf-8')
     return JSON.parse(content)
+  }
   }
   
   const writeFile = (content) => {
     const updateFile = JSON.stringify(content)
     fs.writeFileSync('./users.json', updateFile, 'utf-8')
   }
+  
+  // var dir = path.join(__dirname, 'public');
+
+// var mime = {
+//     html: 'text/html',
+//     txt: 'text/plain',
+//     css: 'text/css',
+//     gif: 'image/gif',
+//     jpg: 'image/jpeg',
+//     png: 'image/png',
+//     svg: 'image/svg+xml',
+//     js: 'application/javascript'
+//   };
+
+//   app.get('*', function (req, res) {
+//       var file = path.join(dir, req.path.replace(/\/$/, '/index.html'));
+//       if (file.indexOf(dir + path.sep) !== 0) {
+//           return res.status(403).end('Forbidden');
+//       }
+//       var type = mime[path.extname(file).slice(1)] || 'text/plain';
+//       var s = fs.createReadStream(file);
+//       s.on('open', function () {
+//           res.set('Content-Type', type);
+//           s.pipe(res);
+//       });
+//       s.on('error', function () {
+//           res.set('Content-Type', 'text/plain');
+//           res.status(404).end('Not found');
+//       });
+//   });
   
   
   app.get('/', (req, res) => {
@@ -51,6 +86,7 @@ const readFile = () => {
   
   return res.send(userSelected)
   })
+  
   app.post('/register', jsonParser, function (req, res) {
     const { name, email, password, clothings, favoriteClothings, token } = req.body
     const currentContent = readFile()
@@ -122,6 +158,27 @@ const readFile = () => {
     res.send(currentContent)
   })
 
+  app.get("/images", async (req, res) => {
+
+    // if (req.file) {
+    //     //console.log(req.file);
+    //     return res.json({
+    //         erro: false,
+    //         mensagem: "Upload realizado com sucesso!"
+    //     });
+    // }
+
+    // return res.status(400).json({
+    //     erro: true,
+    //     mensagem: "Erro: Upload não realizado com sucesso, necessário enviar uma imagem PNG ou JPG!"
+    // });
+      const content = readFile()
+      
+    console.log(content);
+      res.send(content)
+
+});
+
 app.post("/upload-image", uploadUser.single('image'), async (req, res) => {
 
     if (req.file) {
@@ -142,5 +199,5 @@ app.post("/upload-image", uploadUser.single('image'), async (req, res) => {
 });
 
 app.listen(9000, () => {
-    console.log("Servidor iniciado na porta 9000: http://localhost:9000");
+    console.log("Servidor iniciado: https://isaias-galery-back-end.onrender.com");
 });
