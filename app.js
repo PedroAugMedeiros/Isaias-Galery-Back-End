@@ -16,6 +16,7 @@ app.use((req, res, next) => {
 
 const readFile = (getImages) => {
   if(getImages) {
+    console.log('OK')
     const content = fs.readFileSync('./public/upload/users', 'utf-8')
     return JSON.parse(content)
   } else {
