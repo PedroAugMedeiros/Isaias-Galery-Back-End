@@ -172,7 +172,7 @@ const readFile = (getImages) => {
     //     erro: true,
     //     mensagem: "Erro: Upload não realizado com sucesso, necessário enviar uma imagem PNG ou JPG!"
     // });
-      const content = readFile()
+      const content = readFile(true)
       
     console.log(content);
       res.send(content)
