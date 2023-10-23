@@ -1,11 +1,15 @@
 const express = require('express');
 var bodyParser = require('body-parser')
 var cors = require('cors');
+const path = require('path');
 var jsonParser = bodyParser.json()
-var urlencodedParser = bodyParser.urlencoded({ extended: false })
+
 const app = express();
 const uploadUser = require('./middlewares/uploadImage');
 const fs = require('fs');
+
+app.use('/files', express.static(path.resolve(__dirname,'public', 'upload')));
+
 app.use((req, res, next) => {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE");
@@ -180,6 +184,22 @@ const readFile = (getImages) => {
 
 });
 
+app.get("/list-image", async (req, res) => {
+  await Image.findAll()
+  .then((images) => {
+      return res.json({
+          erro: false,
+          images,
+          url: "https://isaias-galery-back-end.onrender.com/public/users/"
+      });
+  }).catch(() => {
+      return res.status(400).json({
+          erro: true,
+          mensagem: "Erro: Nenhuma imagem encontrada!"
+      });
+  });
+});
+
 app.post("/upload-image", uploadUser.single('image'), async (req, res) => {
 
     if (req.file) {
@@ -195,9 +215,9 @@ app.post("/upload-image", uploadUser.single('image'), async (req, res) => {
         mensagem: "Erro: Upload não realizado com sucesso, necessário enviar uma imagem PNG ou JPG!"
     });
 
-
-
 });
+
+
 
 app.listen(9000, () => {
     console.log("Servidor iniciado: https://isaias-galery-back-end.onrender.com");
