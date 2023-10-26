@@ -8,20 +8,22 @@ const app = express();
 const uploadUser = require('./middlewares/uploadImage');
 const fs = require('fs');
 
-app.use('/files', express.static(path.resolve(__dirname,'public', 'upload')));
+
+
 
 app.use((req, res, next) => {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE");
     res.header("Access-Control-Allow-Headers", "X-PINGOTHER, Content-Type, Authorization");
     app.use(cors());
+    app.use('/files', express.static(path.resolve(__dirname,'public', 'upload')));
     next();
 });
 
 const readFile = (getImages) => {
   if(getImages) {
     console.log('OK')
-    const content = fs.readFileSync('./public/upload/users', 'utf-8')
+    const content = fs.readFileSync('./public/upload/users', 'base64')
     return JSON.parse(content)
   } else {
     const content = fs.readFileSync('./users.json', 'utf-8')
@@ -74,6 +76,16 @@ const readFile = (getImages) => {
     const content = readFile()
   
     res.send(content)
+  })
+
+  app.get('/getImages', (req, res) => {
+
+    const imagesDir = "./fotos";
+    
+    const images = fs.readdirSync(fotosDir);
+    
+    res.send(images);
+
   })
   
   app.get('/getHistory/:id', (req, res) => {
@@ -163,7 +175,7 @@ const readFile = (getImages) => {
     res.send(currentContent)
   })
 
-  app.get("/images", async (req, res) => {
+  app.get("/files", async (req, res) => {
 
     // if (req.file) {
     //     //console.log(req.file);
@@ -178,8 +190,7 @@ const readFile = (getImages) => {
     //     mensagem: "Erro: Upload não realizado com sucesso, necessário enviar uma imagem PNG ou JPG!"
     // });
       const content = readFile(true)
-      
-    console.log(content);
+    
       res.send(content)
 
 });
