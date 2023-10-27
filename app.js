@@ -8,15 +8,12 @@ const app = express();
 const uploadUser = require('./middlewares/uploadImage');
 const fs = require('fs');
 
-
-
-
 app.use((req, res, next) => {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE");
     res.header("Access-Control-Allow-Headers", "X-PINGOTHER, Content-Type, Authorization");
     app.use(cors());
-    app.use('/files', express.static(path.resolve(__dirname,'public', 'upload')));
+    app.use('/files', express.static(path.resolve(__dirname,'images', 'upload', '')));
     next();
 });
 
@@ -71,6 +68,26 @@ const readFile = (getImages) => {
     const content = readFile()
     res.send(content)
   })
+
+  app.get("/files", async (req, res) => {
+
+    // if (req.file) {
+    //     //console.log(req.file);
+    //     return res.json({
+    //         erro: false,
+    //         mensagem: "Upload realizado com sucesso!"
+    //     });
+    // }
+
+    // return res.status(400).json({
+    //     erro: true,
+    //     mensagem: "Erro: Upload não realizado com sucesso, necessário enviar uma imagem PNG ou JPG!"
+    // });
+      const content = readFile(true)
+    console.log(content)
+      res.send(content)
+
+});
   
   app.get('/getUsers', (req, res) => {
     const content = readFile()
@@ -80,13 +97,27 @@ const readFile = (getImages) => {
 
   app.get('/getImages', (req, res) => {
 
-    const imagesDir = "./fotos";
+    const fotosDir = "./images/upload/users";
     
     const images = fs.readdirSync(fotosDir);
+    console.log(images)
     
     res.send(images);
 
   })
+
+  app.get("/getImage/:filename", (req, res) => {
+    const imagesPath = path.join(__dirname, "images", "upload", "users");
+    // Obtenha o nome do arquivo da imagem
+    const filename = req.params.filename;
+  
+    // Carregue a imagem do arquivo
+    const image = fs.readFileSync(path.join(imagesPath, filename));
+  
+    // Envie a imagem para o cliente
+    res.setHeader("Content-Type", "image/png");
+    res.send(image);
+  });
   
   app.get('/getHistory/:id', (req, res) => {
     const content = readFile()
@@ -174,26 +205,6 @@ const readFile = (getImages) => {
     writeFile(newDb)
     res.send(currentContent)
   })
-
-  app.get("/files", async (req, res) => {
-
-    // if (req.file) {
-    //     //console.log(req.file);
-    //     return res.json({
-    //         erro: false,
-    //         mensagem: "Upload realizado com sucesso!"
-    //     });
-    // }
-
-    // return res.status(400).json({
-    //     erro: true,
-    //     mensagem: "Erro: Upload não realizado com sucesso, necessário enviar uma imagem PNG ou JPG!"
-    // });
-      const content = readFile(true)
-    
-      res.send(content)
-
-});
 
 app.get("/list-image", async (req, res) => {
   await Image.findAll()
