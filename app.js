@@ -102,7 +102,7 @@ const readFile = (getImages) => {
     const images = fs.readdirSync(fotosDir);
     console.log(images)
     
-    res.send(images);
+    res.send(json);
 
   })
 
@@ -115,7 +115,7 @@ const readFile = (getImages) => {
     const image = fs.readFileSync(path.join(imagesPath, filename));
   
     // Envie a imagem para o cliente
-    res.setHeader("Content-Type", "image/png");
+    res.setHeader("Content-Type", "image/jpg");
     res.send(image);
   });
   
@@ -212,7 +212,7 @@ app.get("/list-image", async (req, res) => {
       return res.json({
           erro: false,
           images,
-          url: "https://isaias-galery-back-end.onrender.com/public/users/"
+          url: "http://localhost:9000/files/users/"
       });
   }).catch(() => {
       return res.status(400).json({
