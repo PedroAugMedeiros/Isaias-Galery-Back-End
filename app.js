@@ -87,7 +87,75 @@ app.post("/upload-image", uploadUser.single('image'), async (req, res) => {
 
 });
 
-app.put('/edit/:id', (req, res) => {
+  app.get('/getImages', (req, res) => {
+
+    const fotosDir = "./images/upload/users";
+    
+    const images = fs.readdirSync(fotosDir);
+    console.log(images)
+    
+    res.send(images);
+
+  })
+
+  app.get("/getImage/:filename", (req, res) => {
+    const imagesPath = path.join(__dirname, "images", "upload", "users");
+    // Obtenha o nome do arquivo da imagem
+    const filename = req.params.filename;
+  
+    // Carregue a imagem do arquivo
+    const image = fs.readFileSync(path.join(imagesPath, filename));
+  
+    // Envie a imagem para o cliente
+    res.setHeader("Content-Type", "image/png");
+    res.send(image);
+  });
+  
+  app.get('/getHistory/:id', (req, res) => {
+    const content = readFile()
+    const { id } = req.params;
+    const getSelected = content.find((item) => item.id === id)
+    const atualizations = getSelected.historyAtualization;
+    res.send(atualizations)
+  })
+  
+  app.get('/getUser/:email', (req, res) => {
+    const content = readFile()
+    const { email } = req.params
+    const userSelected = content.find((user) => user.email === email)
+  
+  return res.send(userSelected)
+  })
+  
+  app.post('/register', jsonParser, function (req, res) {
+    const { name, email, password, clothings, favoriteClothings, token } = req.body
+    const currentContent = readFile()
+  
+    currentContent.push({ name,  email, password, clothings, favoriteClothings, token })
+    writeFile(currentContent)
+    res.send({ name,  email, password, clothings, favoriteClothings, token })
+  })
+  
+  app.post("/uploadImage", uploadUser.single('image'), async (req, res) => {
+  
+    if (req.file) {
+        console.log(req.file);
+        return res.json({
+            erro: false,
+            mensagem: "Upload realizado com sucesso!"
+        });
+    }
+  
+    return res.status(400).json({
+        erro: true,
+        mensagem: "Erro: Upload não realizado com sucesso, necessário enviar uma imagem PNG ou JPG!"
+    });
+  
+  
+  
+  });
+  
+  app.put('/edit/:id', (req, res) => {
     const currentContent = readFile()
     const { id } = req.params;
   
