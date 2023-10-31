@@ -3,10 +3,12 @@ var bodyParser = require('body-parser')
 var cors = require('cors');
 const path = require('path');
 var jsonParser = bodyParser.json()
+const multer = require('multer');
 
 const app = express();
 const uploadUser = require('./middlewares/uploadImage');
 const fs = require('fs');
+
 
 app.use((req, res, next) => {
     res.header("Access-Control-Allow-Origin", "*");
@@ -15,6 +17,7 @@ app.use((req, res, next) => {
     app.use(cors());
     app.use('/files', express.static(path.resolve(__dirname,'images', 'upload', '')));
     next();
+    app.use("/images", express.static(path.join(__dirname, "images")));
 });
 
 const readFile = (getImages) => {
@@ -88,6 +91,26 @@ const readFile = (getImages) => {
       res.send(content)
 
 });
+
+// Define o middleware `multer`
+const upload = multer({
+  storage: multer.diskStorage({
+    destination: path.join(__dirname, "images"),
+    filename: (req, file, cb) => {
+      cb(null, file.originalname)  
+  }
+  }),
+});
+
+// Define a rota `POST` para receber o upload de uma imagem
+app.post("/images", upload.single("image"), (req, res) => {
+  // Obtém o nome da imagem
+  console.log('dsde')
+  const imageName = req.file.filename;
+
+  // Retorna a imagem
+  res.sendFile(path.join(__dirname, "uploads", imageName));
+});
   
   app.get('/getUsers', (req, res) => {
     const content = readFile()
@@ -97,26 +120,26 @@ const readFile = (getImages) => {
 
   app.get('/getImages', (req, res) => {
 
-    const fotosDir = "./images/upload/users";
+    const fotosDir = "./images";
     
     const images = fs.readdirSync(fotosDir);
     console.log(images)
     
-    res.send(json);
+    res.send(images);
 
   })
 
   app.get("/getImage/:filename", (req, res) => {
-    const imagesPath = path.join(__dirname, "images", "upload", "users");
-    // Obtenha o nome do arquivo da imagem
-    const filename = req.params.filename;
+const imagesPath = path.join(__dirname, "images");
+// Obtenha o nome do arquivo da imagem
+const filename = req.params.filename;
   
-    // Carregue a imagem do arquivo
-    const image = fs.readFileSync(path.join(imagesPath, filename));
+// Carregue a imagem do arquivo
+const image = fs.readFileSync(path.join(imagesPath, filename));
   
-    // Envie a imagem para o cliente
-    res.setHeader("Content-Type", "image/jpg");
-    res.send(image);
+// Envie a imagem para o cliente
+res.setHeader("Content-Type", "image/jpg");
+res.send(image);
   });
   
   app.get('/getHistory/:id', (req, res) => {
@@ -144,24 +167,24 @@ const readFile = (getImages) => {
     res.send({ name,  email, password, clothings, favoriteClothings, token })
   })
   
-  app.post("/uploadImage", uploadUser.single('image'), async (req, res) => {
+  // app.post("/uploadImage", uploadUser.single('image'), async (req, res) => {
   
-    if (req.file) {
-        console.log(req.file);
-        return res.json({
-            erro: false,
-            mensagem: "Upload realizado com sucesso!"
-        });
-    }
+  //   if (req.file) {
+  //       console.log(req.file);
+  //       return res.json({
+  //           erro: false,
+  //           mensagem: "Upload realizado com sucesso!"
+  //       });
+  //   }
   
-    return res.status(400).json({
-        erro: true,
-        mensagem: "Erro: Upload não realizado com sucesso, necessário enviar uma imagem PNG ou JPG!"
-    });
+  //   return res.status(400).json({
+  //       erro: true,
+  //       mensagem: "Erro: Upload não realizado com sucesso, necessário enviar uma imagem PNG ou JPG!"
+  //   });
   
   
   
-  });
+  // });
   
   app.put('/edit/:id', (req, res) => {
     const currentContent = readFile()
@@ -225,7 +248,7 @@ app.get("/list-image", async (req, res) => {
 app.post("/upload-image", uploadUser.single('image'), async (req, res) => {
 
     if (req.file) {
-        //console.log(req.file);
+        console.log(req.file);
         return res.json({
             erro: false,
             mensagem: "Upload realizado com sucesso!"
